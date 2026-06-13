@@ -1,32 +1,36 @@
 #pragma once
 #include "Character.h"
 #include "MonsterRegistry.h"
+#include "Cave.h"
 
 class Battle {
 public:
     Battle(Character& player, const MonsterRegistry& registry);
 
-    // Returns true if player wants to continue adventuring, false to quit
-    bool run();
+    bool run(); // Returns false to go back to main menu
 
 private:
     Character& player;
     const MonsterRegistry& registry;
 
-    // Returns the enemy monster the player chose to fight
-    // Returns nullptr if player chose to leave
+    // Wild monster fight (original)
     Monster* chooseEnemy();
-
-    // Conducts a fight between a player monster and an enemy monster
-    // Returns true if player's monster wins
-    bool fight(Monster& playerMonster, Monster& enemyMonster);
-
-    // Lets the player choose which of their monsters to send into battle
-    // Returns index into player's roster, or -1 if cancelled
     int choosePlayerMonster();
-
-    // Offer the player to add/swap the defeated enemy into their roster
+    bool fight(Monster& playerMonster, Monster& enemyMonster);
     void offerCapture(const Monster& defeated);
+
+    // Cave fight
+    void runCave();
+
+    // Item usage during battle
+    // Returns true if player used an item (skips normal attack)
+    bool offerItemUse(Monster& playerMonster, Monster& enemyMonster);
+
+    // Give item to a monster after cave reward
+    void giveItemToMonster(const Item& item);
+
+    // Apply cursed effect when a monster deals damage
+    void applyCursedEffect(Monster& attacker, Monster& target, int damageDealt);
 
     void printSeparator() const;
 };
