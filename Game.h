@@ -1,6 +1,6 @@
 #pragma once
 #include "MonsterRegistry.h"
-#include <optional>
+#include "Database.h"
 #include <memory>
 
 class Character;
@@ -12,9 +12,12 @@ public:
 
 private:
     MonsterRegistry registry;
+    Database db;
 
     void showMainMenu();
     void startNewCharacter();
+    void loadExistingCharacter();
+    void showStatistics();
     void runAdventure(Character& character);
 
     void printTitle() const;
