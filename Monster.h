@@ -18,6 +18,7 @@ public:
 
     void takeDamage(int amount);
     void healToFull();
+    void setHp(int newHp);
     void printStats() const;
 
     // Status methods

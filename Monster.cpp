@@ -36,6 +36,12 @@ void Monster::takeDamage(int amount) {
 
 void Monster::healToFull() { hp = maxHp; }
 
+void Monster::setHp(int newHp) {
+    hp = newHp;
+    if (hp < 0) hp = 0;
+    if (hp > maxHp) hp = maxHp;
+}
+
 void Monster::printStats() const {
     std::cout << std::left << std::setw(22) << name
               << "  HP: " << std::setw(4) << hp << "/" << std::setw(4) << maxHp
