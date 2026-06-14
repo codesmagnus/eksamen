@@ -83,4 +83,15 @@ namespace Items {
         ItemEffect e; e.status = StatusType::Poisoned; e.conditionalOnEnemyStatus = true;
         return Item("Gift", "100% Poison if enemy took damage, else 20%", e);
     }
+
+    std::optional<Item> fromName(const std::string& name) {
+        if (name == "Bombe")       return makeBomb();
+        if (name == "Ildbombe")    return makeFireBomb();
+        if (name == "Tordenbombe") return makeThunderBomb();
+        if (name == "Kolle")       return makeClub();
+        if (name == "Blaaser")     return makeFan();
+        if (name == "Forbandelse") return makeCurse();
+        if (name == "Gift")        return makePoison();
+        return std::nullopt;
+    }
 }

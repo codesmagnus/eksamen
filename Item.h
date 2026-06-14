@@ -40,4 +40,7 @@ namespace Items {
     Item makeFan();
     Item makeCurse();
     Item makePoison();
+
+    // Recreate an item by its name (used when loading from the database)
+    std::optional<Item> fromName(const std::string& name);
 }
