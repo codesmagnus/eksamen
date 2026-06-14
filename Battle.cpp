@@ -3,8 +3,8 @@
 #include <iostream>
 #include <cstdlib>
 
-Battle::Battle(Character& player, const MonsterRegistry& registry)
-    : player(player), registry(registry) {}
+Battle::Battle(Character& player, const MonsterRegistry& registry, Database& db)
+    : player(player), registry(registry), db(db) {}
 
 void Battle::printSeparator() const {
     std::cout << "  ----------------------------------------\n";
@@ -36,7 +36,6 @@ bool Battle::run() {
         }
 
         if (choice == 4) {
-            // Give item from player inventory to a monster
             if (!player.hasItems()) {
                 std::cout << "\n  You have no items to give.\n";
                 continue;
@@ -68,11 +67,14 @@ bool Battle::run() {
         if (monsterIdx < 0) { delete enemy; continue; }
 
         Monster& myMonster = player.getMonster(monsterIdx);
+        db.recordMonsterUsed(player.getId(), myMonster.getName());
+
         bool playerWon = fight(myMonster, *enemy);
 
         if (playerWon) {
             std::cout << "\n  Victory! " << myMonster.getName()
                       << " defeated " << enemy->getName() << "!\n";
+            db.recordMonsterDefeated(player.getId());
             offerCapture(*enemy);
         } else {
             std::cout << "\n  " << myMonster.getName() << " was defeated!\n";
@@ -118,8 +120,13 @@ bool Battle::offerItemUse(Monster& playerMonster, Monster& enemyMonster) {
     if (choice == playerMonster.itemCount() + 1) return false;
 
     const Item& item = playerMonster.getItem(choice - 1);
+    std::string itemName = item.getName(); // copy before potential vector mutation
     int dmg = item.use(playerMonster, enemyMonster);
     applyCursedEffect(playerMonster, enemyMonster, dmg);
+
+    bool defeated = !enemyMonster.isAlive();
+    db.recordItemUsed(player.getId(), itemName, defeated);
+
     return true;
 }
 
@@ -192,7 +199,6 @@ bool Battle::fight(Monster& playerMonster, Monster& enemyMonster) {
         }
 
         if (!playerFirst && playerMonster.isAlive()) {
-            // Player attacks second
             std::cout << "\n  -- " << playerMonster.getName() << "'s turn --\n";
             if (playerMonster.canAct()) {
                 playerMonster.consumeTurnStatus();
@@ -242,7 +248,6 @@ void Battle::offerCapture(const Monster& defeated) {
 }
 
 void Battle::runCave() {
-    // Calculate player level from average monster strength
     int totalStr = 0;
     for (int i = 0; i < player.monsterCount(); ++i)
         totalStr += player.getMonster(i).getStrength();
@@ -257,7 +262,6 @@ void Battle::runCave() {
     int caveMonsterIdx = 0;
 
     while (!cave.allDefeated() && player.hasMonsters()) {
-        // Find next alive cave monster
         while (caveMonsterIdx < cave.monsterCount() && !cave.getMonster(caveMonsterIdx).isAlive())
             caveMonsterIdx++;
 
@@ -276,10 +280,13 @@ void Battle::runCave() {
         }
 
         Monster& myMonster = player.getMonster(monIdx);
+        db.recordMonsterUsed(player.getId(), myMonster.getName());
+
         bool won = fight(myMonster, enemy);
 
         if (won) {
             std::cout << "  " << myMonster.getName() << " defeated " << enemy.getName() << "!\n";
+            db.recordMonsterDefeated(player.getId());
             caveMonsterIdx++;
         } else {
             std::cout << "  " << myMonster.getName() << " was defeated!\n";
@@ -297,13 +304,4 @@ void Battle::runCave() {
         std::cout << "  The item has been added to your inventory.\n"
                   << "  Use 'Give item to monster' from the menu to equip it.\n";
     }
-}
-
-void Battle::giveItemToMonster(const Item& item) {
-    player.printRoster();
-    std::cout << "  Choose a monster to give " << item.getName() << " to: ";
-    int idx = getIntInput(1, player.monsterCount()) - 1;
-    player.getMonster(idx).addItem(item);
-    std::cout << "  " << item.getName() << " given to "
-              << player.getMonster(idx).getName() << "!\n";
 }
