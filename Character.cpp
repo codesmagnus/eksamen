@@ -6,6 +6,9 @@ Character::Character(const std::string& name) : name(name) {}
 
 const std::string& Character::getName() const { return name; }
 
+int Character::getId() const { return id; }
+void Character::setId(int newId) { id = newId; }
+
 bool Character::addMonster(const Monster& monster) {
     if ((int)roster.size() >= MAX_MONSTERS) return false;
     roster.push_back(monster);
@@ -50,6 +53,8 @@ void Character::healAllMonsters() {
 void Character::addItem(const Item& item) { inventory.push_back(item); }
 bool Character::hasItems() const { return !inventory.empty(); }
 int Character::itemCount() const { return (int)inventory.size(); }
+
+const Item& Character::getInventoryItem(int index) const { return inventory.at(index); }
 
 Item Character::takeItem(int index) {
     Item item = inventory.at(index);

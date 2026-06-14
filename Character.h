@@ -12,6 +12,10 @@ public:
 
     const std::string& getName() const;
 
+    // Database id (-1 = not yet saved to the database)
+    int getId() const;
+    void setId(int id);
+
     // Monster management
     bool addMonster(const Monster& monster);
     bool swapMonster(int slot, const Monster& newMonster);
@@ -28,10 +32,12 @@ public:
     void addItem(const Item& item);
     bool hasItems() const;
     int itemCount() const;
-    Item takeItem(int index); // Remove and return item
+    const Item& getInventoryItem(int index) const; // peek without removing
+    Item takeItem(int index); // remove and return item
     void printItems() const;
 
 private:
+    int id = -1;
     std::string name;
     std::vector<Monster> roster;
     std::vector<Item> inventory;
